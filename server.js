@@ -4,6 +4,7 @@ const { Builder, By, Key, until } = require('selenium-webdriver');
 
 const chromeOptions = new chrome.Options();
 chromeOptions.setChromeBinaryPath(process.env.GOOGLE_CHROME_SHIM);
+chromeOptions.addArguments('--headless');
 chromeOptions.addArguments('--disable-gpu');
 chromeOptions.addArguments('--no-sandbox');
 
