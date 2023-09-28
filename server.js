@@ -6,6 +6,7 @@ const chromeOptions = new chrome.Options();
 chromeOptions.addArguments('--headless');
 chromeOptions.addArguments('--disable-gpu');
 chromeOptions.addArguments('--no-sandbox');
+chromeOptions.addArguments("--disable-dev-shm-usage");
 
 const app = express();
 const port = process.env.PORT || 3000;
