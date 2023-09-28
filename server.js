@@ -11,7 +11,7 @@ chromeOptions.addArguments("--remote-debugging-port=9222");
 
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = 3000;
 
 async function getLiveProjections() {
   const driver = new Builder()
@@ -50,7 +50,7 @@ async function getLiveProjections() {
 
 app.get('/live-projections', async (req, res) => {
   try {
-    getLiveProjections();
+    await getLiveProjections();
 
     res.send('Selenium actions executed successfully!');
   } catch (error) {
