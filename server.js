@@ -7,7 +7,6 @@ const port = process.env.PORT || 3000;
 async function getLiveProjections() {
   const driver = new Builder()
     .forBrowser('chrome')
-    .setChromeOptions(chromeOptions)
     .build();
 
   try {
