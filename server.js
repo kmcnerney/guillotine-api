@@ -1,5 +1,11 @@
 const express = require('express');
+const chrome = require('selenium-webdriver/chrome');
 const { Builder, By, Key, until } = require('selenium-webdriver');
+
+const chromeOptions = new chrome.Options();
+chromeOptions.addArguments('--headless');
+chromeOptions.addArguments('--disable-gpu');
+chromeOptions.addArguments('--no-sandbox');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -7,6 +13,7 @@ const port = process.env.PORT || 3000;
 async function getLiveProjections() {
   const driver = new Builder()
     .forBrowser('chrome')
+    .setChromeOptions(chromeOptions)
     .build();
 
   try {
