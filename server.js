@@ -1,4 +1,9 @@
+const express = require('express');
 const { Builder, By, Key, until } = require('selenium-webdriver');
+
+// Create an Express app
+const app = express();
+const port = process.env.PORT || 3000;
 
 async function getLiveProjections() {
   const driver = new Builder()
@@ -34,4 +39,18 @@ async function getLiveProjections() {
   }
 }
 
-getLiveProjections();
+app.get('/live-projections', async (req, res) => {
+  try {
+    await getLiveProjections();
+
+    res.send('Selenium actions executed successfully!');
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Error executing Selenium actions.');
+  }
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
