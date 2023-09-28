@@ -50,7 +50,7 @@ async function getLiveProjections() {
 
 app.get('/live-projections', async (req, res) => {
   try {
-    await getLiveProjections();
+    getLiveProjections();
 
     res.send('Selenium actions executed successfully!');
   } catch (error) {
