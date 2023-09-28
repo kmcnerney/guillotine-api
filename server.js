@@ -1,13 +1,19 @@
 const express = require('express');
+const chrome = require('selenium-webdriver/chrome');
 const { Builder, By, Key, until } = require('selenium-webdriver');
 
-// Create an Express app
+const chromeOptions = new chrome.Options();
+chromeOptions.setChromeBinaryPath(process.env.GOOGLE_CHROME_SHIM);
+chromeOptions.addArguments('--disable-gpu');
+chromeOptions.addArguments('--no-sandbox');
+
 const app = express();
 const port = process.env.PORT || 3000;
 
 async function getLiveProjections() {
   const driver = new Builder()
     .forBrowser('chrome')
+    .setChromeOptions(chromeOptions)
     .build();
 
   try {
