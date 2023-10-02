@@ -33,7 +33,6 @@ async function login() {
   console.log('Logged into Yahoo')
 }
 
-const scoreState = {}
 async function getLiveProjections() {
   await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
   await driver.wait(until.elementLocated(By.className('Table')), 5000)
@@ -42,24 +41,29 @@ async function getLiveProjections() {
   const leagueTableBody = await leagueTable.findElements(By.tagName('tbody'))
   const teams = await leagueTableBody[0].findElements(By.tagName('tr'))
 
+  let scores = []
   for(const team of teams) {
     const cells = await team.findElements(By.tagName('td'))
     const teamCell = await cells[2].findElement(By.tagName('a'))
     const teamName = await teamCell.getAttribute('innerHTML')
     const projScore = await cells[3].getAttribute('innerHTML')
-    scoreState[teamName] = {
+    scores.push({
+      teamName: teamName,
       projectedPts: projScore
-    }
+    })
   }
-  console.log('completed this with scoreState', scoreState)
+  console.log('scores before sort', scores)
+  scores.sort((a, b) => parseFloat(b.projectedPts) - parseFloat(a.projectedPts));
+  console.log('completed this with scores', scores)
+  return scores
 }
 
 login();
 
 app.get('/live-projections', async (req, res) => {
   try {
-    await getLiveProjections()
-    res.send(scoreState)
+    const results = await getLiveProjections()
+    res.send(results)
   } catch (error) {
     console.error('Failed to get live projections: ', error);
     res.status(500).send('Failed to get live projections');
