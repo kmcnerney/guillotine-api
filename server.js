@@ -1,18 +1,26 @@
 const express = require('express');
+const webdriver = require('selenium-webdriver');
+require('chromedriver');
 const chrome = require('selenium-webdriver/chrome');
-const { Builder, By, Key, until } = require('selenium-webdriver');
 
-const chromeOptions = new chrome.Options();
-chromeOptions.addArguments('--headless');
+let options = new chrome.Options();
+options.setChromeBinaryPath(process.env.CHROME_BINARY_PATH);
+let serviceBuilder = new chrome.ServiceBuilder(process.env.CHROME_DRIVER_PATH);
+
+//Don't forget to add these for heroku
+options.addArguments("--headless");
+options.addArguments("--disable-gpu");
+options.addArguments("--no-sandbox");
 
 
 const app = express();
 const port = 3000;
 
 async function getLiveProjections() {
-  const driver = new Builder()
+  let driver = new webdriver.Builder()
     .forBrowser('chrome')
-    .setChromeOptions(chromeOptions)
+    .setChromeOptions(options)
+    .setChromeService(serviceBuilder)
     .build();
 
   try {
