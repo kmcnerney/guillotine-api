@@ -1,73 +1,77 @@
-const express = require('express');
-const { Builder, By, Key, until } = require('selenium-webdriver');
-require('chromedriver');
-const chrome = require('selenium-webdriver/chrome');
+const express = require('express')
+const { Builder, By, Key, until } = require('selenium-webdriver')
+require('chromedriver')
+const chrome = require('selenium-webdriver/chrome')
 
-let chromeOptions = new chrome.Options();
-chromeOptions.setChromeBinaryPath(process.env.CHROME_BINARY_PATH);
-let serviceBuilder = new chrome.ServiceBuilder(process.env.CHROME_DRIVER_PATH);
+let chromeOptions = new chrome.Options()
+chromeOptions.setChromeBinaryPath(process.env.CHROME_BINARY_PATH)
+let serviceBuilder = new chrome.ServiceBuilder(process.env.CHROME_DRIVER_PATH)
 
-chromeOptions.addArguments("--headless");
-chromeOptions.addArguments("--disable-gpu");
-chromeOptions.addArguments("--no-sandbox");
+chromeOptions.addArguments("--headless")
+chromeOptions.addArguments("--disable-gpu")
+chromeOptions.addArguments("--no-sandbox")
 
-
-const app = express();
-const port = process.env.PORT || 3000;
-
-async function getLiveProjections() {
-  let driver = new Builder()
+let driver = new Builder()
     .forBrowser('chrome')
     .setChromeOptions(chromeOptions)
     .setChromeService(serviceBuilder)
-    .build();
+    .build()
 
-  try {
-    // Navigate to the Yahoo Fantasy login page
-    await driver.get('https://login.yahoo.com');
+const app = express()
+const port = process.env.PORT || 3000
 
-    // Find the username input field and enter your Yahoo username/email
-    await driver.findElement(By.id('login-username')).sendKeys('your_username');
+async function login() {
+  await driver.get('https://login.yahoo.com');
+  await driver.findElement(By.id('login-username')).sendKeys('mcnerney_kevin');
+  await driver.findElement(By.id('login-signin')).click();
+  
+  await driver.wait(until.elementLocated(By.id('login-passwd')), 5000);
+  await driver.findElement(By.id('login-passwd')).sendKeys('GuillotineEasy1!');
+  await driver.findElement(By.id('login-signin')).click();
 
-    // Find and click the "Next" button (Yahoo sometimes requires two steps for login)
-    await driver.findElement(By.id('login-signin')).click();
-
-    // Wait for the password input field to become visible
-    await driver.wait(until.elementLocated(By.id('login-passwd')), 5000);
-
-    // Find the password input field and enter your password
-    await driver.findElement(By.id('login-passwd')).sendKeys('your_password');
-
-    // Find and click the "Sign In" button
-    await driver.findElement(By.id('login-signin')).click();
-
-    // Optional: Add code to handle post-login actions on the Yahoo Fantasy site
-    // ...
-
-    console.log('Login successful.');
-  } finally {
-    // Close the browser window
-    await driver.quit();
-  }
+  await driver.wait(until.elementLocated(By.id('atomic')), 5000);
+  console.log('Logged into Yahoo')
 }
+
+const scoreState = {}
+async function getLiveProjections() {
+  await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
+  await driver.wait(until.elementLocated(By.className('Table')), 5000)
+  const weeklySection = await driver.findElement(By.id('matchupweek'))
+  const leagueTable = await weeklySection.findElement(By.className('Table'))
+  const leagueTableBody = await leagueTable.findElements(By.tagName('tbody'))
+  const teams = await leagueTableBody[0].findElements(By.tagName('tr'))
+
+  for(const team of teams) {
+    const cells = await team.findElements(By.tagName('td'))
+    const teamCell = await cells[2].findElement(By.tagName('a'))
+    const teamName = await teamCell.getAttribute('innerHTML')
+    const projScore = await cells[3].getAttribute('innerHTML')
+    scoreState[teamName] = {
+      projectedPts: projScore
+    }
+  }
+  console.log('completed this with scoreState', scoreState)
+}
+
+login();
+
+app.get('/live-projections', async (req, res) => {
+  try {
+    await getLiveProjections()
+    res.send(scoreState)
+  } catch (error) {
+    console.error('Failed to get live projections: ', error);
+    res.status(500).send('Failed to get live projections');
+  }
+});
 
 app.get('/', async (req, res) => {
   try {
     res.send('Server is healthy');
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Failed pulse: ', error);
     res.status(500).send('Server is unhealthy!');
-  }
-});
-
-app.get('/live-projections', async (req, res) => {
-  try {
-    await getLiveProjections();
-
-    res.send('Selenium actions executed successfully!');
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).send('Error executing Selenium actions.');
   }
 });
 
