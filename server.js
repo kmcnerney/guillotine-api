@@ -1,5 +1,5 @@
 const express = require('express');
-const webdriver = require('selenium-webdriver');
+const { Builder, By, Key, until } = require('selenium-webdriver');
 require('chromedriver');
 const chrome = require('selenium-webdriver/chrome');
 
@@ -17,7 +17,7 @@ const app = express();
 const port = 3000;
 
 async function getLiveProjections() {
-  let driver = new webdriver.Builder()
+  let driver = new Builder()
     .forBrowser('chrome')
     .setChromeOptions(options)
     .setChromeService(serviceBuilder)
