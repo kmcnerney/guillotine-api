@@ -52,6 +52,15 @@ async function getLiveProjections() {
   }
 }
 
+app.get('/', async (req, res) => {
+  try {
+    res.send('Server is healthy');
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Server is unhealthy!');
+  }
+});
+
 app.get('/live-projections', async (req, res) => {
   try {
     //await getLiveProjections();
