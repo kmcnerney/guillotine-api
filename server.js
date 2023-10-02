@@ -1,16 +1,15 @@
 const express = require('express');
-// const { Builder, By, Key, until } = require('selenium-webdriver');
-// require('chromedriver');
-// const chrome = require('selenium-webdriver/chrome');
+const { Builder, By, Key, until } = require('selenium-webdriver');
+require('chromedriver');
+const chrome = require('selenium-webdriver/chrome');
 
-// let options = new chrome.Options();
-// options.setChromeBinaryPath(process.env.CHROME_BINARY_PATH);
-// let serviceBuilder = new chrome.ServiceBuilder(process.env.CHROME_DRIVER_PATH);
+let chromeOptions = new chrome.Options();
+chromeOptions.setChromeBinaryPath(process.env.CHROME_BINARY_PATH);
+let serviceBuilder = new chrome.ServiceBuilder(process.env.CHROME_DRIVER_PATH);
 
-//Don't forget to add these for heroku
-// options.addArguments("--headless");
-// options.addArguments("--disable-gpu");
-// options.addArguments("--no-sandbox");
+chromeOptions.addArguments("--headless");
+chromeOptions.addArguments("--disable-gpu");
+chromeOptions.addArguments("--no-sandbox");
 
 
 const app = express();
@@ -19,7 +18,7 @@ const port = process.env.PORT || 3000;
 async function getLiveProjections() {
   let driver = new Builder()
     .forBrowser('chrome')
-    .setChromeOptions(options)
+    .setChromeOptions(chromeOptions)
     .setChromeService(serviceBuilder)
     .build();
 
@@ -63,7 +62,7 @@ app.get('/', async (req, res) => {
 
 app.get('/live-projections', async (req, res) => {
   try {
-    //await getLiveProjections();
+    await getLiveProjections();
 
     res.send('Selenium actions executed successfully!');
   } catch (error) {
