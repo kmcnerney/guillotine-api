@@ -24,40 +24,53 @@ const port = process.env.PORT || 3001
 app.use(cors())
 
 async function login() {
-  await driver.get('https://login.yahoo.com');
-  await driver.findElement(By.id('login-username')).sendKeys('mcnerney_kevin');
-  await driver.findElement(By.id('login-signin')).click();
-  
-  await driver.wait(until.elementLocated(By.id('login-passwd')), 5000);
-  await driver.findElement(By.id('login-passwd')).sendKeys('GuillotineEasy1!');
-  await driver.findElement(By.id('login-signin')).click();
+  try {
+    await driver.get('https://login.yahoo.com');
+    await driver.findElement(By.id('login-username')).sendKeys('mcnerney_kevin');
+    await driver.findElement(By.id('login-signin')).click();
+    
+    await driver.wait(until.elementLocated(By.id('login-passwd')), 5000);
+    await driver.findElement(By.id('login-passwd')).sendKeys('GuillotineEasy1!');
+    await driver.findElement(By.id('login-signin')).click();
 
-  await driver.wait(until.elementLocated(By.id('atomic')), 5000);
-  console.log('Logged into Yahoo')
+    await driver.wait(until.elementLocated(By.id('atomic')), 5000);
+    console.log('Logged into Yahoo')
+  } catch (e) {
+    console.error('Failed to login to Yahoo', e)
+    driver.quit()
+    await new Promise(r => setTimeout(r, 10000))
+    login()
+  }
 }
 
 async function getLiveProjections() {
-  await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
-  await driver.wait(until.elementLocated(By.className('Table')), 5000)
-  const weeklySection = await driver.findElement(By.id('matchupweek'))
-  const leagueTable = await weeklySection.findElement(By.className('Table'))
-  const leagueTableBody = await leagueTable.findElements(By.tagName('tbody'))
-  const teams = await leagueTableBody[0].findElements(By.tagName('tr'))
-
   let scores = []
-  for(const team of teams) {
-    const cells = await team.findElements(By.tagName('td'))
-    const teamCell = await cells[2].findElement(By.tagName('a'))
-    const teamName = await teamCell.getAttribute('innerHTML')
-    const projScore = await cells[3].getAttribute('innerHTML')
-    scores.push({
-      teamName: teamName,
-      projectedPts: projScore
-    })
+  try {
+    await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
+    await driver.wait(until.elementLocated(By.className('Table')), 5000)
+    const weeklySection = await driver.findElement(By.id('matchupweek'))
+    const leagueTable = await weeklySection.findElement(By.className('Table'))
+    const leagueTableBody = await leagueTable.findElements(By.tagName('tbody'))
+    const teams = await leagueTableBody[0].findElements(By.tagName('tr'))
+
+    for(const team of teams) {
+      const cells = await team.findElements(By.tagName('td'))
+      const teamCell = await cells[2].findElement(By.tagName('a'))
+      const teamName = await teamCell.getAttribute('innerHTML')
+      const projScore = await cells[3].getAttribute('innerHTML')
+      scores.push({
+        teamName: teamName,
+        projectedPts: projScore
+      })
+    }
+  } catch (e) {
+    console.error('Failed to get live projections from Yahoo', e)
+    driver.quit()
+    await new Promise(r => setTimeout(r, 10000))
+    login()
   }
-  console.log('scores before sort', scores)
+
   scores.sort((a, b) => parseFloat(b.projectedPts) - parseFloat(a.projectedPts));
-  console.log('completed this with scores', scores)
   return scores
 }
 
@@ -66,6 +79,7 @@ login();
 app.get('/live-projections', async (req, res) => {
   try {
     const results = await getLiveProjections()
+    console.log('returning scores', results)
     res.send(results)
   } catch (error) {
     console.error('Failed to get live projections: ', error);
@@ -73,11 +87,21 @@ app.get('/live-projections', async (req, res) => {
   }
 });
 
+app.get('/re-login', async (req, res) => {
+  try {
+    const results = await login()
+    res.send('Successfully logged into Yahoo')
+  } catch (e) {
+    console.error('Failed to login: ', e);
+    res.status(500).send('Failed to login');
+  }
+});
+
 app.get('/', async (req, res) => {
   try {
     res.send('Server is healthy');
-  } catch (error) {
-    console.error('Failed pulse: ', error);
+  } catch (e) {
+    console.error('Failed pulse: ', e);
     res.status(500).send('Server is unhealthy!');
   }
 });
