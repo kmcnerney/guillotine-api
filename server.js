@@ -13,19 +13,22 @@ chromeOptions.addArguments("--headless")
 chromeOptions.addArguments("--disable-gpu")
 chromeOptions.addArguments("--no-sandbox")
 
-let driver = new Builder()
-    .forBrowser('chrome')
-    .setChromeOptions(chromeOptions)
-    .setChromeService(serviceBuilder)
-    .build()
-
 const app = express()
 const port = process.env.PORT || 3001
 app.use(cors())
 
+let driver
 async function login() {
   try {
+    driver = new Builder()
+      .forBrowser('chrome')
+      .setChromeOptions(chromeOptions)
+      .setChromeService(serviceBuilder)
+      .build()
+
     await driver.get('https://login.yahoo.com');
+
+    await driver.wait(until.elementLocated(By.id('login-username')), 5000);
     await driver.findElement(By.id('login-username')).sendKeys('mcnerney_kevin');
     await driver.findElement(By.id('login-signin')).click();
     
@@ -39,7 +42,7 @@ async function login() {
     console.error('Failed to login to Yahoo', e)
     driver.quit()
     await new Promise(r => setTimeout(r, 10000))
-    login()
+    return login()
   }
 }
 
@@ -47,7 +50,7 @@ async function getLiveProjections() {
   let scores = []
   try {
     await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
-    await driver.wait(until.elementLocated(By.className('Table')), 5000)
+    await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
     const weeklySection = await driver.findElement(By.id('matchupweek'))
     const leagueTable = await weeklySection.findElement(By.className('Table'))
     const leagueTableBody = await leagueTable.findElements(By.tagName('tbody'))
@@ -67,7 +70,7 @@ async function getLiveProjections() {
     console.error('Failed to get live projections from Yahoo', e)
     driver.quit()
     await new Promise(r => setTimeout(r, 10000))
-    login()
+    return login()
   }
 
   scores.sort((a, b) => parseFloat(b.projectedPts) - parseFloat(a.projectedPts));
