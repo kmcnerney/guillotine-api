@@ -1,4 +1,6 @@
 const express = require('express')
+const cors = require('cors')
+
 const { Builder, By, Key, until } = require('selenium-webdriver')
 require('chromedriver')
 const chrome = require('selenium-webdriver/chrome')
@@ -18,7 +20,8 @@ let driver = new Builder()
     .build()
 
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3001
+app.use(cors())
 
 async function login() {
   await driver.get('https://login.yahoo.com');
