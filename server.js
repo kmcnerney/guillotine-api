@@ -36,7 +36,7 @@ async function login() {
     await driver.findElement(By.id('login-passwd')).sendKeys('GuillotineEasy1!');
     await driver.findElement(By.id('login-signin')).click();
 
-    await driver.wait(until.elementLocated(By.id('atomic')), 5000);
+    //await driver.wait(until.elementLocated(By.id('atomic')), 5000);
     console.log('Logged into Yahoo')
   } catch (e) {
     console.error('Failed to login to Yahoo', e)
