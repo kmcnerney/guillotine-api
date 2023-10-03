@@ -52,9 +52,9 @@ async function getLiveProjections() {
   let scores = []
   try {
     await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
-    await driver.wait(until.elementLocated(By.id('matchupweek')), 3000)
-    const weeklySection = await driver.findElement(By.id('matchupweek'))
-    const leagueTable = await weeklySection.findElements(By.className('Table'))
+    await driver.wait(until.elementLocated(By.className('Tst-matchups-body')), 3000)
+    const weeklySection = await driver.findElements(By.className('Tst-matchups-body'))
+    const leagueTable = await weeklySection[0].findElements(By.className('Table'))
     const leagueTableBody = await leagueTable[0].findElements(By.tagName('tbody'))
     const teams = await leagueTableBody[0].findElements(By.tagName('tr'))
 
