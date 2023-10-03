@@ -17,7 +17,8 @@ const app = express()
 const port = process.env.PORT || 3001
 app.use(cors())
 
-const RETRY_DELAY = 10 * 60 * 1000 // 10 minutes
+const MFA_DELAY = 10 * 1000 // 10 seconds
+const RETRY_DELAY = 5 * 60 * 1000 // 5 minutes
 
 let driver
 async function login() {
@@ -39,11 +40,8 @@ async function login() {
     await driver.findElement(By.id('login-signin')).click()
 
     // TODO: figure out a way to not need 2FA approval
-    await new Promise(r => setTimeout(r, RETRY_DELAY))
-    await driver.wait(until.elementLocated(By.tagName('body')), 5000)
-
-    await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
-    await driver.wait(until.elementLocated(By.tagName('body')), 5000)
+    await new Promise(r => setTimeout(r, MFA_DELAY))
+    await driver.wait(until.elementLocated(By.id('leaguehomestandings')), 5000)
     console.log('Logged into Yahoo')
   } catch (e) {
     console.error('Failed to login to Yahoo', e)
