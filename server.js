@@ -1,7 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 
-const { Builder, By, Key, until } = require('selenium-webdriver')
+const { Builder, By, until } = require('selenium-webdriver')
 require('chromedriver')
 const chrome = require('selenium-webdriver/chrome')
 
@@ -12,6 +12,7 @@ let serviceBuilder = new chrome.ServiceBuilder(process.env.CHROME_DRIVER_PATH)
 chromeOptions.addArguments("--headless")
 chromeOptions.addArguments("--disable-gpu")
 chromeOptions.addArguments("--no-sandbox")
+chromeOptions.add_argument('--disable-dev-shm-usage')   
 
 const app = express()
 const port = process.env.PORT || 3001
