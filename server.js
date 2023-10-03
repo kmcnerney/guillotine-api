@@ -38,8 +38,12 @@ async function login() {
     await driver.findElement(By.id('login-passwd')).sendKeys('GuillotineEasy1!')
     await driver.findElement(By.id('login-signin')).click()
 
-    await driver.wait(until.elementLocated(By.tagName('body')), 10000)
+    // TODO: figure out a way to not need 2FA approval
+    await new Promise(r => setTimeout(r, RETRY_DELAY))
+    await driver.wait(until.elementLocated(By.tagName('body')), 5000)
+
     await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
+    await driver.wait(until.elementLocated(By.tagName('body')), 5000)
     console.log('Logged into Yahoo')
   } catch (e) {
     console.error('Failed to login to Yahoo', e)
@@ -88,16 +92,6 @@ app.get('/live-projections', async (req, res) => {
   } catch (error) {
     console.error('Failed to get live projections: ', error);
     res.status(500).send('Failed to get live projections');
-  }
-});
-
-app.get('/re-login', async (req, res) => {
-  try {
-    const results = await login()
-    res.send('Successfully logged into Yahoo')
-  } catch (e) {
-    console.error('Failed to login: ', e);
-    res.status(500).send('Failed to login');
   }
 });
 
