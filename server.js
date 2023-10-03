@@ -43,6 +43,7 @@ async function login() {
   } catch (e) {
     console.error('Failed to login to Yahoo', e)
     await new Promise(r => setTimeout(r, RETRY_DELAY))
+    await driver.quit()
     login()
   }
 }
@@ -69,6 +70,7 @@ async function getLiveProjections() {
     }
   } catch (e) {
     console.error('Failed to get live projections from Yahoo', e)
+    await driver.quit()
     login()
     return []
   }
