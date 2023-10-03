@@ -30,15 +30,15 @@ async function login() {
 
     await driver.get('https://login.yahoo.com');
 
-    await driver.wait(until.elementLocated(By.id('login-username')), 5000);
+    await driver.wait(until.elementLocated(By.id('login-username')), 3000);
     await driver.findElement(By.id('login-username')).sendKeys('mcnerney_kevin');
     await driver.findElement(By.id('login-signin')).click();
     
-    await driver.wait(until.elementLocated(By.id('login-passwd')), 5000);
+    await driver.wait(until.elementLocated(By.id('login-passwd')), 3000);
     await driver.findElement(By.id('login-passwd')).sendKeys('GuillotineEasy1!');
     await driver.findElement(By.id('login-signin')).click();
 
-    await driver.wait(until.elementLocated(By.tagName('body')), 5000);
+    await driver.wait(until.elementLocated(By.tagName('body')), 3000);
     console.log('Logged into Yahoo')
   } catch (e) {
     console.error('Failed to login to Yahoo', e)
@@ -52,10 +52,10 @@ async function getLiveProjections() {
   let scores = []
   try {
     await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
-    await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
+    await driver.wait(until.elementLocated(By.id('matchupweek')), 3000)
     const weeklySection = await driver.findElement(By.id('matchupweek'))
-    const leagueTable = await weeklySection.findElement(By.className('Table'))
-    const leagueTableBody = await leagueTable.findElements(By.tagName('tbody'))
+    const leagueTable = await weeklySection.findElements(By.className('Table'))
+    const leagueTableBody = await leagueTable[0].findElements(By.tagName('tbody'))
     const teams = await leagueTableBody[0].findElements(By.tagName('tr'))
 
     for(const team of teams) {
