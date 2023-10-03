@@ -13,16 +13,21 @@ chromeOptions.addArguments("--headless")
 chromeOptions.addArguments("--disable-gpu")
 chromeOptions.addArguments("--no-sandbox")
 
+const app = express()
+const port = process.env.PORT || 3001
+app.use(cors())
+
 const RETRY_DELAY = 10 * 60 * 1000 // 10 minutes
 
+let driver
 async function login() {
-  const driver = new Builder()
-    .forBrowser('chrome')
-    .setChromeOptions(chromeOptions)
-    .setChromeService(serviceBuilder)
-    .build()
-
   try {
+    driver = new Builder()
+      .forBrowser('chrome')
+      .setChromeOptions(chromeOptions)
+      .setChromeService(serviceBuilder)
+      .build()
+
     await driver.get('https://login.yahoo.com');
 
     await driver.wait(until.elementLocated(By.id('login-username')), 3000);
@@ -35,22 +40,20 @@ async function login() {
 
     await driver.wait(until.elementLocated(By.tagName('body')), 3000);
     console.log('Logged into Yahoo')
-    return driver
-
   } catch (e) {
     console.error('Failed to login to Yahoo', e)
-    throw e
+    await new Promise(r => setTimeout(r, RETRY_DELAY))
+    login()
   }
 }
 
 async function getLiveProjections() {
   let scores = []
   try {
-    const driver = await login()
     await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
-    await driver.wait(until.elementLocated(By.className('Tst-matchups-body')), 3000)
-    const weeklySection = await driver.findElements(By.className('Tst-matchups-body'))
-    const leagueTable = await weeklySection[0].findElements(By.className('Table'))
+    await driver.wait(until.elementLocated(By.id('matchupweek')), 3000)
+    const weeklySection = await driver.findElement(By.id('matchupweek'))
+    const leagueTable = await weeklySection.findElements(By.className('Table'))
     const leagueTableBody = await leagueTable[0].findElements(By.tagName('tbody'))
     const teams = await leagueTableBody[0].findElements(By.tagName('tr'))
 
@@ -66,6 +69,7 @@ async function getLiveProjections() {
     }
   } catch (e) {
     console.error('Failed to get live projections from Yahoo', e)
+    login()
     return []
   }
 
@@ -73,9 +77,7 @@ async function getLiveProjections() {
   return scores
 }
 
-const app = express()
-const port = process.env.PORT || 3001
-app.use(cors())
+login()
 
 app.get('/live-projections', async (req, res) => {
   try {
@@ -88,7 +90,7 @@ app.get('/live-projections', async (req, res) => {
   }
 });
 
-app.get('/test-login', async (req, res) => {
+app.get('/re-login', async (req, res) => {
   try {
     const results = await login()
     res.send('Successfully logged into Yahoo')
