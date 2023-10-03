@@ -48,41 +48,9 @@ async function login() {
   }
 }
 
-// const _scraper = () => {
-//   console.log('running script')
-//   const weeklySection = document.getElementById('matchupweek')
-//   const leagueTable = weeklySection.getElementsByClassName('Table')
-//   const leagueTableBody = leagueTable[0].getElementsByTagName('tbody')
-//   const teams = leagueTableBody[0].getElementsByTagName('tr')
-
-//   let scores = []
-//   for(const team of teams) {
-//     const cells = team.getElementsByTagName('td')
-//     const teamName = cells[2].getElementsByTagName('a')[0].innerHTML
-//     const projScore = cells[4].innerHTML
-//     scores.push({
-//       teamName: teamName,
-//       projectedPts: projScore
-//     })
-//   }
-//   return scores
-// }
-
 async function getLiveProjections() {
   let scores = []
   try {
-    // scores = await driver.executeScript(_scraper)
-
-    // let pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML');
-    // console.log('security pageSource: ', pageSource);
-
-    // console.log('current URL', await driver.getCurrentUrl())
-    // const buttons = await driver.findElements(By.className('pure-button'))
-    // await buttons[2].click()
-
-    // pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML');
-    // console.log('after security pageSource: ', pageSource);
-
     await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
     const weeklySection = await driver.findElement(By.id('matchupweek'))
     const leagueTable = await weeklySection.findElements(By.className('Table'))
