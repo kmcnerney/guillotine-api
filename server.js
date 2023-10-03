@@ -15,7 +15,13 @@ chromeOptions.addArguments("--no-sandbox")
 
 const RETRY_DELAY = 10 * 60 * 1000 // 10 minutes
 
-async function login(driver) {
+async function login() {
+  const driver = new Builder()
+    .forBrowser('chrome')
+    .setChromeOptions(chromeOptions)
+    .setChromeService(serviceBuilder)
+    .build()
+
   try {
     await driver.get('https://login.yahoo.com');
 
@@ -29,18 +35,18 @@ async function login(driver) {
 
     await driver.wait(until.elementLocated(By.tagName('body')), 3000);
     console.log('Logged into Yahoo')
+    return driver
+
   } catch (e) {
     console.error('Failed to login to Yahoo', e)
-    driver.quit()
-    await new Promise(r => setTimeout(r, RETRY_DELAY))
-    login()
     throw e
   }
 }
 
-async function getLiveProjections(driver) {
+async function getLiveProjections() {
   let scores = []
   try {
+    const driver = await login()
     await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
     await driver.wait(until.elementLocated(By.className('Tst-matchups-body')), 3000)
     const weeklySection = await driver.findElements(By.className('Tst-matchups-body'))
@@ -60,7 +66,6 @@ async function getLiveProjections(driver) {
     }
   } catch (e) {
     console.error('Failed to get live projections from Yahoo', e)
-    login()
     return []
   }
 
@@ -71,19 +76,10 @@ async function getLiveProjections(driver) {
 const app = express()
 const port = process.env.PORT || 3001
 app.use(cors())
-const driver = new Builder()
-  .forBrowser('chrome')
-  .setChromeOptions(chromeOptions)
-  .setChromeService(serviceBuilder)
-  .build()
-app.set('driver', driver); 
-
-login(driver)
 
 app.get('/live-projections', async (req, res) => {
-  const driver = req.app.get('driver')
   try {
-    const results = await getLiveProjections(driver)
+    const results = await getLiveProjections()
     console.log('returning scores', results)
     res.send(results)
   } catch (error) {
@@ -92,10 +88,9 @@ app.get('/live-projections', async (req, res) => {
   }
 });
 
-app.get('/re-login', async (req, res) => {
-  const driver = req.app.get('driver')
+app.get('/test-login', async (req, res) => {
   try {
-    const results = await login(driver)
+    const results = await login()
     res.send('Successfully logged into Yahoo')
   } catch (e) {
     console.error('Failed to login: ', e);
