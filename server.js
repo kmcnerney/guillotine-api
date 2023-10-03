@@ -71,7 +71,8 @@ async function getLiveProjections() {
   } catch (e) {
     console.error('Failed to get live projections from Yahoo', e)
     driver.quit()
-    return login()
+    login()
+    return []
   }
 
   scores.sort((a, b) => parseFloat(b.projectedPts) - parseFloat(a.projectedPts));
