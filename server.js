@@ -74,7 +74,14 @@ async function getLiveProjections() {
     // scores = await driver.executeScript(_scraper)
 
     const pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML');
-    console.log('pageSource: ', pageSource);
+    console.log('security pageSource: ', pageSource);
+
+    console.log('current URL', await driver.getCurrentUrl())
+    const buttons = await driver.findElements(By.className('pure-button'))
+    await buttons[1].click()
+
+    pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML');
+    console.log('after security pageSource: ', pageSource);
 
     await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
     const weeklySection = await driver.findElement(By.id('matchupweek'))
