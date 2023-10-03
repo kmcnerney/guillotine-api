@@ -12,7 +12,7 @@ let serviceBuilder = new chrome.ServiceBuilder(process.env.CHROME_DRIVER_PATH)
 chromeOptions.addArguments("--headless")
 chromeOptions.addArguments("--disable-gpu")
 chromeOptions.addArguments("--no-sandbox")
-chromeOptions.add_argument('--disable-dev-shm-usage')   
+chromeOptions.addArguments('--disable-dev-shm-usage')   
 
 const app = express()
 const port = process.env.PORT || 3001
@@ -56,6 +56,8 @@ async function getLiveProjections() {
   let scores = []
   try {
     await driver.navigate().refresh()
+    await new Promise(r => setTimeout(r, 1000))
+    
     await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
     const weeklySection = await driver.findElement(By.id('matchupweek'))
     const leagueTable = await weeklySection.findElements(By.className('Table'))
