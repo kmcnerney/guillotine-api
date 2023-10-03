@@ -38,7 +38,7 @@ async function login() {
     await driver.findElement(By.id('login-passwd')).sendKeys('GuillotineEasy1!')
     await driver.findElement(By.id('login-signin')).click()
 
-    await driver.wait(until.elementLocated(By.tagName('body')), 5000)
+    await driver.wait(until.elementLocated(By.tagName('body')), 10000)
     console.log('Logged into Yahoo')
   } catch (e) {
     console.error('Failed to login to Yahoo', e)
@@ -73,15 +73,15 @@ async function getLiveProjections() {
   try {
     // scores = await driver.executeScript(_scraper)
 
-    let pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML');
-    console.log('security pageSource: ', pageSource);
+    // let pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML');
+    // console.log('security pageSource: ', pageSource);
 
-    console.log('current URL', await driver.getCurrentUrl())
-    const buttons = await driver.findElements(By.className('pure-button'))
-    await buttons[1].click()
+    // console.log('current URL', await driver.getCurrentUrl())
+    // const buttons = await driver.findElements(By.className('pure-button'))
+    // await buttons[2].click()
 
-    pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML');
-    console.log('after security pageSource: ', pageSource);
+    // pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML');
+    // console.log('after security pageSource: ', pageSource);
 
     await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
     const weeklySection = await driver.findElement(By.id('matchupweek'))
