@@ -17,7 +17,7 @@ const app = express()
 const port = process.env.PORT || 3001
 app.use(cors())
 
-const RETRY_DELAY = 10 * 60 * 1000 // 10 minutes
+const RETRY_DELAY = 10 * 1000 // 10 seconds
 
 let driver
 async function login() {
@@ -52,11 +52,11 @@ async function getLiveProjections() {
   let scores = []
   try {
     await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
-
+    await new Promise(r => setTimeout(r, RETRY_DELAY))
     await driver.wait(until.elementLocated(By.tagName('body')), 3000)
     await driver.wait(until.elementLocated(By.tagName('div')), 3000)
     await driver.wait(until.elementLocated(By.className('outer-wrapper')), 3000)
-    await driver.wait(until.elementLocated(By.id('body-wrapper')), 3000)
+    await driver.wait(until.elementLocated(By.id('outer-wrapper')), 3000)
     await driver.wait(until.elementLocated(By.className('Page-wrap')), 3000)
 
     await driver.wait(until.elementLocated(By.id('matchupweek')), 3000)
