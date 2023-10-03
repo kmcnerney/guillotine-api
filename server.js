@@ -71,7 +71,6 @@ async function getLiveProjections() {
   } catch (e) {
     console.error('Failed to get live projections from Yahoo', e)
     driver.quit()
-    await new Promise(r => setTimeout(r, RETRY_DELAY))
     return login()
   }
 
