@@ -57,7 +57,7 @@ async function getLiveProjections() {
   try {
     await driver.navigate().refresh()
     await new Promise(r => setTimeout(r, 1000))
-    
+
     await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
     const weeklySection = await driver.findElement(By.id('matchupweek'))
     const leagueTable = await weeklySection.findElements(By.className('Table'))
@@ -85,15 +85,26 @@ async function getLiveProjections() {
 
 login()
 
+let lock = false
+let globalScores = []
 app.get('/live-projections', async (req, res) => {
+  if (lock) {
+    console.log('another user is already checking scores, just give the latest')
+    return res.send(globalScores)
+  }
+  lock = true
+
   try {
     const results = await getLiveProjections()
-    console.log('returning scores', results)
-    res.send(results)
+    console.log('got new scores', results)
+    globalScores = results
+    res.send(globalScores)
   } catch (error) {
     console.error('Failed to get live projections: ', error);
     res.status(500).send('Failed to get live projections');
   }
+
+  lock = false
 });
 
 app.get('/', async (req, res) => {
