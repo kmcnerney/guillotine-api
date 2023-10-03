@@ -9,7 +9,7 @@ let chromeOptions = new chrome.Options()
 chromeOptions.setChromeBinaryPath(process.env.CHROME_BINARY_PATH)
 let serviceBuilder = new chrome.ServiceBuilder(process.env.CHROME_DRIVER_PATH)
 
-chromeOptions.addArguments("--headless")
+//chromeOptions.addArguments("--headless")
 chromeOptions.addArguments("--disable-gpu")
 chromeOptions.addArguments("--no-sandbox")
 
@@ -17,7 +17,7 @@ const app = express()
 const port = process.env.PORT || 3001
 app.use(cors())
 
-const RETRY_DELAY = 10 * 1000 // 10 seconds
+const RETRY_DELAY = 10 * 60 * 1000 // 10 minutes
 
 let driver
 async function login() {
