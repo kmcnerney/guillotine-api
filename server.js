@@ -73,7 +73,7 @@ async function getLiveProjections() {
   try {
     // scores = await driver.executeScript(_scraper)
 
-    const pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML');
+    let pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML');
     console.log('security pageSource: ', pageSource);
 
     console.log('current URL', await driver.getCurrentUrl())
