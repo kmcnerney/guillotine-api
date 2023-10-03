@@ -28,17 +28,17 @@ async function login() {
       .setChromeService(serviceBuilder)
       .build()
 
-    await driver.get('https://login.yahoo.com')
+    await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
 
-    await driver.wait(until.elementLocated(By.id('login-username')), 3000)
+    await driver.wait(until.elementLocated(By.id('login-username')), 5000)
     await driver.findElement(By.id('login-username')).sendKeys('mcnerney_kevin')
     await driver.findElement(By.id('login-signin')).click()
     
-    await driver.wait(until.elementLocated(By.id('login-passwd')), 3000)
+    await driver.wait(until.elementLocated(By.id('login-passwd')), 5000)
     await driver.findElement(By.id('login-passwd')).sendKeys('GuillotineEasy1!')
     await driver.findElement(By.id('login-signin')).click()
 
-    await driver.wait(until.elementLocated(By.tagName('body')), 3000)
+    await driver.wait(until.elementLocated(By.tagName('body')), 5000)
     console.log('Logged into Yahoo')
   } catch (e) {
     console.error('Failed to login to Yahoo', e)
@@ -51,15 +51,7 @@ async function login() {
 async function getLiveProjections() {
   let scores = []
   try {
-    await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
-    await new Promise(r => setTimeout(r, RETRY_DELAY))
-    await driver.wait(until.elementLocated(By.tagName('body')), 3000)
-    await driver.wait(until.elementLocated(By.tagName('div')), 3000)
-    await driver.wait(until.elementLocated(By.className('outer-wrapper')), 3000)
-    await driver.wait(until.elementLocated(By.id('outer-wrapper')), 3000)
-    await driver.wait(until.elementLocated(By.className('Page-wrap')), 3000)
-
-    await driver.wait(until.elementLocated(By.id('matchupweek')), 3000)
+    await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
     const weeklySection = await driver.findElement(By.id('matchupweek'))
     const leagueTable = await weeklySection.findElements(By.className('Table'))
     const leagueTableBody = await leagueTable[0].findElements(By.tagName('tbody'))
