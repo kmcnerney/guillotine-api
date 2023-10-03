@@ -51,6 +51,7 @@ async function login() {
 async function getLiveProjections() {
   let scores = []
   try {
+    await driver.navigate().refresh()
     await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
     const weeklySection = await driver.findElement(By.id('matchupweek'))
     const leagueTable = await weeklySection.findElements(By.className('Table'))
