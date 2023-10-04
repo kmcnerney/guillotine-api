@@ -46,9 +46,14 @@ async function login() {
     console.log('Logged into Yahoo')
   } catch (e) {
     console.error('Failed to login to Yahoo', e)
-    const pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML');
+    const pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML')
     console.log('current page', pageSource);
     await driver.quit()
+    driver = new Builder()
+      .forBrowser('chrome')
+      .setChromeOptions(chromeOptions)
+      .setChromeService(serviceBuilder)
+      .build()
   }
 }
 
