@@ -74,8 +74,10 @@ async function getLiveProjections() {
     const pageSource = await driver.getPageSource();
     if(pageSource.includes('Final results')) {
       console.log('Skipping to next week projections');
-      const nextButton = await driver.findElements(By.className('Js-next'));
-      //await nextButton[0].click();
+      await driver.wait(until.elementIsVisible(driver.findElement(By.className('Js-next'))), 5000)
+      await driver.wait(until.elementIsEnabled(driver.findElement(By.className('Js-next'))), 5000)
+      const nextButton = await driver.findElement(By.className('Js-next'));
+      await nextButton.click();
       await new Promise(r => setTimeout(r, 500))
     }
 
