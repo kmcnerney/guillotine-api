@@ -42,7 +42,7 @@ async function login() {
     // TODO: figure out a way to not need 2FA approval
     await new Promise(r => setTimeout(r, MFA_DELAY))
     
-    await driver.wait(until.elementLocated(By.id('leaguehomestandings')), 5000)
+    await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
     console.log('Logged into Yahoo')
 
   } catch (e) {
@@ -75,7 +75,6 @@ async function getLiveProjections() {
     if(pageSource.includes('Final results')) {
       console.log('Skipping to next week projections');
       const nextButton = await driver.findElements(By.className('Js-next'));
-      console.log('nextButton', nextButton);
       await nextButton[0].click();
       await new Promise(r => setTimeout(r, 1000))
     }
