@@ -77,7 +77,7 @@ async function getLiveProjections() {
       await driver.wait(until.elementIsVisible(driver.findElement(By.className('Js-next'))), 5000)
       await driver.wait(until.elementIsEnabled(driver.findElement(By.className('Js-next'))), 5000)
       const nextButton = await driver.findElement(By.className('Js-next'));
-      await nextButton.click();
+      //await nextButton.click();
       await new Promise(r => setTimeout(r, 500))
     }
 
