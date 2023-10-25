@@ -9,7 +9,7 @@ let chromeOptions = new chrome.Options()
 chromeOptions.setChromeBinaryPath(process.env.CHROME_BINARY_PATH)
 let serviceBuilder = new chrome.ServiceBuilder(process.env.CHROME_DRIVER_PATH)
 
-//chromeOptions.addArguments("--headless")
+chromeOptions.addArguments("--headless")
 chromeOptions.addArguments("--disable-gpu")
 chromeOptions.addArguments("--no-sandbox")
 chromeOptions.addArguments('--disable-dev-shm-usage')   
@@ -72,7 +72,7 @@ async function getLiveProjections() {
     await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
 
     const pageSource = await driver.getPageSource();
-    if(pageSource.includes('Final Results')) {
+    if(pageSource.includes('Final results')) {
       console.log('Skipping to next week projections');
       const nextButton = await driver.findElements(By.className('Js-next'));
       console.log('nextButton', nextButton);
