@@ -44,10 +44,11 @@ async function login() {
     
     await driver.wait(until.elementLocated(By.id('leaguehomestandings')), 5000)
     console.log('Logged into Yahoo')
+
   } catch (e) {
     console.error('Failed to login to Yahoo', e)
-    const pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML')
-    console.log('current page', pageSource);
+    // const pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML')
+    // console.log('current page', pageSource);
     await driver.quit()
     driver = new Builder()
       .forBrowser('chrome')
@@ -68,8 +69,17 @@ async function getLiveProjections() {
   try {
     await driver.navigate().refresh()
     await new Promise(r => setTimeout(r, 1000))
-
     await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
+
+    const today = new Date();
+    if(today.getDay() == 2) {
+      console.log('Today is Tuesday, skip to next week projections');
+      const nextButton = await driver.findElements(By.className('Js-next'));
+      console.log('nextButton', nextButton);
+      await nextButton[0].click();
+      await new Promise(r => setTimeout(r, 1000))
+    }
+
     const weeklySection = await driver.findElement(By.id('matchupweek'))
     const leagueTable = await weeklySection.findElements(By.className('Table'))
     const leagueTableBody = await leagueTable[0].findElements(By.tagName('tbody'))
@@ -78,10 +88,12 @@ async function getLiveProjections() {
     for(const team of teams) {
       const cells = await team.findElements(By.tagName('td'))
       const teamCell = await cells[TABLE_CELL_INDICES.TEAM].findElements(By.tagName('a'))
+      const placeCell = await cells[TABLE_CELL_INDICES.TEAM].findElements(By.className('Mstart-med'))
       scores.push({
         teamName: await teamCell[0].getAttribute('innerHTML'),
-        projectedPts: await cells[TABLE_CELL_INDICES.PROJECTION].getAttribute('innerHTML'),
-        currentPts: await cells[TABLE_CELL_INDICES.CURRENT].getAttribute('innerHTML'),
+        projectedPts: parseFloat(await cells[TABLE_CELL_INDICES.PROJECTION].getAttribute('innerHTML')),
+        currentPts: parseFloat(await cells[TABLE_CELL_INDICES.CURRENT].getAttribute('innerHTML')),
+        overallRank: parseInt(await placeCell[0].getAttribute('innerHTML'))
       })
     }
   } catch (e) {
@@ -91,7 +103,7 @@ async function getLiveProjections() {
     return []
   }
 
-  scores.sort((a, b) => parseFloat(b.projectedPts) - parseFloat(a.projectedPts));
+  scores.sort((a, b) => b.projectedPts - a.projectedPts || a.overallRank - b.overallRank);
   return scores
 }
 
