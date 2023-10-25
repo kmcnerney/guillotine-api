@@ -78,6 +78,8 @@ async function getLiveProjections() {
       console.log('nextButton', nextButton);
       await nextButton[0].click();
       await new Promise(r => setTimeout(r, 1000))
+    } else {
+      console.log('Today is not Tuesday so we\'re on the correct week');
     }
 
     const weeklySection = await driver.findElement(By.id('matchupweek'))
