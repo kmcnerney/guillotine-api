@@ -9,7 +9,7 @@ let chromeOptions = new chrome.Options()
 chromeOptions.setChromeBinaryPath(process.env.CHROME_BINARY_PATH)
 let serviceBuilder = new chrome.ServiceBuilder(process.env.CHROME_DRIVER_PATH)
 
-chromeOptions.addArguments("--headless")
+//chromeOptions.addArguments("--headless")
 chromeOptions.addArguments("--disable-gpu")
 chromeOptions.addArguments("--no-sandbox")
 chromeOptions.addArguments('--disable-dev-shm-usage')   
@@ -47,7 +47,7 @@ async function login() {
 
   } catch (e) {
     console.error('Failed to login to Yahoo', e)
-    // const pageSource = await driver.wait(until.elementLocated(By.tagName('body')), 5000).getAttribute('innerHTML')
+    // const pageSource = await driver.getPageSource();
     // console.log('current page', pageSource);
     await driver.quit()
     driver = new Builder()
@@ -71,15 +71,13 @@ async function getLiveProjections() {
     await new Promise(r => setTimeout(r, 1000))
     await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
 
-    const today = new Date();
-    if(today.getDay() == 2) {
-      console.log('Today is Tuesday, skip to next week projections');
+    const pageSource = await driver.getPageSource();
+    if(pageSource.includes('Final Results')) {
+      console.log('Skipping to next week projections');
       const nextButton = await driver.findElements(By.className('Js-next'));
       console.log('nextButton', nextButton);
       await nextButton[0].click();
       await new Promise(r => setTimeout(r, 1000))
-    } else {
-      console.log('Today is not Tuesday so we\'re on the correct week');
     }
 
     const weeklySection = await driver.findElement(By.id('matchupweek'))
