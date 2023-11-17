@@ -12,13 +12,13 @@ let serviceBuilder = new chrome.ServiceBuilder(process.env.CHROME_DRIVER_PATH)
 chromeOptions.addArguments("--headless")
 chromeOptions.addArguments("--disable-gpu")
 chromeOptions.addArguments("--no-sandbox")
-chromeOptions.addArguments('--disable-dev-shm-usage')   
+chromeOptions.addArguments('--disable-dev-shm-usage')
 
 const app = express()
 const port = process.env.PORT || 3001
 app.use(cors())
 
-const MFA_DELAY = 10 * 1000 // 10 seconds
+const MFA_DELAY = 10 * 1000 // 30 seconds
 
 let driver
 async function login() {
@@ -38,6 +38,14 @@ async function login() {
     await driver.wait(until.elementLocated(By.id('login-passwd')), 5000)
     await driver.findElement(By.id('login-passwd')).sendKeys('GuillotineEasy1!')
     await driver.findElement(By.id('login-signin')).click()
+
+    await new Promise(r => setTimeout(r, 1000))
+    const pageSource = await driver.getPageSource()
+    if(pageSource.includes('Stay&nbsp;verified')) {
+      console.log('Yahoo is asking to stay verified. Clicking Yes')
+      const stayVerifiedButton = await driver.findElement(By.className('puree-button-primary'))
+      await stayVerifiedButton.click()
+    }
 
     // TODO: figure out a way to not need 2FA approval
     await new Promise(r => setTimeout(r, MFA_DELAY))
@@ -73,11 +81,11 @@ async function getLiveProjections() {
 
     const pageSource = await driver.getPageSource();
     if(pageSource.includes('Final results')) {
-      console.log('Skipping to next week projections');
+      console.log('Skipping to next week projections')
       await driver.wait(until.elementIsVisible(driver.findElement(By.className('Js-next'))), 5000)
       await driver.wait(until.elementIsEnabled(driver.findElement(By.className('Js-next'))), 5000)
-      const nextButton = await driver.findElement(By.className('Js-next'));
-      //await nextButton.click();
+      const nextButton = await driver.findElement(By.className('Js-next'))
+      //await nextButton.click()
       await new Promise(r => setTimeout(r, 500))
     }
 
