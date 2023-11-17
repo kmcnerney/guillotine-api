@@ -18,7 +18,7 @@ const app = express()
 const port = process.env.PORT || 3001
 app.use(cors())
 
-const MFA_DELAY = 10 * 1000 // 30 seconds
+const MFA_DELAY = 10 * 1000 // 10 seconds
 
 let driver
 async function login() {
@@ -46,11 +46,8 @@ async function login() {
       const stayVerifiedButton = await driver.findElement(By.className('puree-button-primary'))
       await stayVerifiedButton.click()
     }
-
-    // TODO: figure out a way to not need 2FA approval
-    await new Promise(r => setTimeout(r, MFA_DELAY))
     
-    await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
+    await driver.wait(until.elementLocated(By.id('matchupweek')), MFA_DELAY)
     console.log('Logged into Yahoo')
 
   } catch (e) {
