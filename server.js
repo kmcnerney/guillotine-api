@@ -21,6 +21,10 @@ app.use(cors());
 const MFA_DELAY = 10 * 1000; // 10 seconds
 
 let driver;
+/**
+ * Logs into the Yahoo Fantasy Football website.
+ * @returns {Promise<void>} A promise that resolves once the login process is complete.
+ */
 async function login() {
   try {
     driver = new Builder()
