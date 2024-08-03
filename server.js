@@ -1,25 +1,17 @@
 const express = require('express');
 const cors = require('cors');
 
-const { Builder, By, until } = require('selenium-webdriver');
-require('chromedriver');
+const { Builder, Browser, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
-let chromeOptions = new chrome.Options();
+const chromeOptions = new chrome.Options();
 chromeOptions.addArguments('--headless')
 chromeOptions.addArguments('--no-sandbox');
 chromeOptions.addArguments('--disable-dev-shm-usage');
 
-const app = express();
-const port = process.env.PORT || 3001;
-app.use(cors());
+let driver;
 
 const MFA_DELAY = 10 * 1000; // 10 seconds
-
-let driver = new Builder()
-  .forBrowser('chrome')
-  .setChromeOptions(chromeOptions)
-  .build();
 
 /**
  * Logs into the Yahoo Fantasy Football website.
@@ -27,6 +19,10 @@ let driver = new Builder()
  */
 async function login() {
   try {
+    driver = new Builder()
+      .forBrowser(Browser.CHROME)
+      .setChromeOptions(chromeOptions)
+      .build();
     console.log('opening league page')
     await driver.get('https://football.fantasysports.yahoo.com/f1/338574');
 
@@ -59,9 +55,7 @@ async function login() {
     console.log('Logged into Yahoo');
   } catch (e) {
     console.error('Failed to login to Yahoo', e);
-    // const pageSource = await driver.getPageSource();
-    // console.log('current page', pageSource);
-    await driver.quit();
+    await driver.quit()
   }
 }
 
@@ -122,7 +116,7 @@ async function getLiveProjections() {
     }
   } catch (e) {
     console.error('Failed to get live projections from Yahoo', e);
-    await driver.quit();
+    await driver.quit()
     login();
     return [];
   }
@@ -134,6 +128,10 @@ async function getLiveProjections() {
 }
 
 login();
+
+const app = express();
+const port = process.env.PORT || 3001;
+app.use(cors());
 
 let lock = false;
 let globalScores = [];
