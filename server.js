@@ -6,11 +6,7 @@ require('chromedriver');
 const chrome = require('selenium-webdriver/chrome');
 
 let chromeOptions = new chrome.Options();
-chromeOptions.setChromeBinaryPath(process.env.CHROME_BINARY_PATH);
-let serviceBuilder = new chrome.ServiceBuilder(process.env.CHROME_DRIVER_PATH);
-
 chromeOptions.addArguments('--headless')
-chromeOptions.addArguments('--disable-gpu');
 chromeOptions.addArguments('--no-sandbox');
 chromeOptions.addArguments('--disable-dev-shm-usage');
 
@@ -23,7 +19,6 @@ const MFA_DELAY = 10 * 1000; // 10 seconds
 let driver = new Builder()
   .forBrowser('chrome')
   .setChromeOptions(chromeOptions)
-  .setChromeService(serviceBuilder)
   .build();
 
 /**
@@ -32,14 +27,17 @@ let driver = new Builder()
  */
 async function login() {
   try {
+    console.log('opening league page')
     await driver.get('https://football.fantasysports.yahoo.com/f1/338574');
 
+    console.log('entering username')
     await driver.wait(until.elementLocated(By.id('login-username')), 5000);
     await driver
       .findElement(By.id('login-username'))
       .sendKeys('mcnerney_kevin');
     await driver.findElement(By.id('login-signin')).click();
 
+    console.log('entering password')
     await driver.wait(until.elementLocated(By.id('login-passwd')), 5000);
     await driver
       .findElement(By.id('login-passwd'))
@@ -56,6 +54,7 @@ async function login() {
       await stayVerifiedButton.click();
     }
 
+    console.log('waiting for mfa')
     await driver.wait(until.elementLocated(By.id('matchupweek')), MFA_DELAY);
     console.log('Logged into Yahoo');
   } catch (e) {
