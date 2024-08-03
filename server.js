@@ -20,19 +20,18 @@ app.use(cors());
 
 const MFA_DELAY = 10 * 1000; // 10 seconds
 
-let driver;
+let driver = new Builder()
+  .forBrowser('chrome')
+  .setChromeOptions(chromeOptions)
+  .setChromeService(serviceBuilder)
+  .build();
+
 /**
  * Logs into the Yahoo Fantasy Football website.
  * @returns {Promise<void>} A promise that resolves once the login process is complete.
  */
 async function login() {
   try {
-    driver = new Builder()
-      .forBrowser('chrome')
-      .setChromeOptions(chromeOptions)
-      .setChromeService(serviceBuilder)
-      .build();
-
     await driver.get('https://football.fantasysports.yahoo.com/f1/338574');
 
     await driver.wait(until.elementLocated(By.id('login-username')), 5000);
