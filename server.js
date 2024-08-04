@@ -137,7 +137,7 @@ async function getLiveProjections() {
 login()
 
 const app = express()
-const port = process.env.PORT || 3001
+const port = process.env.PORT || 4000
 app.use(cors())
 
 let lock = false
