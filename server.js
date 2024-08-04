@@ -1,8 +1,9 @@
-const express = require('express')
-const cors = require('cors')
+import express from 'express'
+import cors from 'cors'
+import Logger from './Logger.js'
 
-const { Builder, Browser, By, until } = require('selenium-webdriver')
-const chrome = require('selenium-webdriver/chrome')
+import { Builder, Browser, By, until } from 'selenium-webdriver'
+import chrome from 'selenium-webdriver/chrome.js'
 
 const chromeOptions = new chrome.Options()
 chromeOptions.addArguments('--headless')
@@ -14,14 +15,14 @@ const MFA_DELAY = 10 * 1000 // 10 seconds
 let driver
 async function startBrowser() {
   if (driver) {
-    console.log('quitting browser')
+    Logger.info('quitting browser')
     try {
       await driver.quit()
     } catch (e) {
-      console.error('failed to quit browser')
+      Logger.error('failed to quit browser')
     }
   }
-  console.log('creating new browser')
+  Logger.info('creating new browser')
   driver = new Builder().forBrowser(Browser.CHROME).setChromeOptions(chromeOptions).build()
   await driver.manage().setTimeouts({pageLoad: 10000})
 }
@@ -34,15 +35,15 @@ async function login() {
   await startBrowser();
 
   try {
-    console.log('opening league page')
+    Logger.info('opening league page')
     await driver.get('https://football.fantasysports.yahoo.com/f1/789266')
 
-    console.log('entering username')
+    Logger.info('entering username')
     await driver.wait(until.elementLocated(By.id('login-username')), 5000)
     await driver.findElement(By.id('login-username')).sendKeys('mcnerney_kevin')
     await driver.findElement(By.id('login-signin')).click()
 
-    console.log('entering password')
+    Logger.info('entering password')
     await driver.wait(until.elementLocated(By.id('login-passwd')), 5000)
     await driver.findElement(By.id('login-passwd')).sendKeys('GuillotineEasy1!')
     await driver.findElement(By.id('login-signin')).click()
@@ -50,16 +51,16 @@ async function login() {
     await new Promise((r) => setTimeout(r, 1000))
     const pageSource = await driver.getPageSource()
     if (pageSource.includes('Stay&nbsp;verified')) {
-      console.log('Yahoo is asking to stay verified. Clicking Yes')
+      Logger.info('Yahoo is asking to stay verified. Clicking Yes')
       const stayVerifiedButton = await driver.findElement(By.className('puree-button-primary'))
       await stayVerifiedButton.click()
     }
 
-    console.log('waiting for mfa')
+    Logger.info('waiting for mfa')
     await driver.wait(until.elementLocated(By.id('matchupweek')), MFA_DELAY)
-    console.log('Logged into Yahoo')
+    Logger.info('Logged into Yahoo')
   } catch (e) {
-    console.error('Failed to login to Yahoo', e)
+    Logger.error('Failed to login to Yahoo', e)
   }
 }
 
@@ -73,12 +74,12 @@ const TABLE_CELL_INDICES = {
 async function refreshWithRetries(retries) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      console.log(`Attempt ${attempt} to refresh page`);
+      Logger.info(`Attempt ${attempt} to refresh page`);
       await driver.navigate().refresh();
-      console.log('refreshed')
+      Logger.info('refreshed')
       return;
     } catch (error) {
-      console.error(`Attempt ${attempt} failed: ${error}`);
+      Logger.error(`Attempt ${attempt} failed: ${error}`);
       if (attempt === retries) {
         throw new Error('Failed to refresh page after multiple attempts');
       }
@@ -91,14 +92,14 @@ async function getLiveProjections() {
     await refreshWithRetries(3)
     await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
   } catch (e) {
-    console.error('failed to find league page, need to re-login')
+    Logger.error('failed to find league page, need to re-login')
     await login()
   }
 
   try {
     // const pageSource = await driver.getPageSource()
     // if (pageSource.includes('Final results')) {
-    //   console.log('Skipping to next week projections')
+    //   Logger.info('Skipping to next week projections')
     //   await driver.wait(until.elementIsVisible(driver.findElement(By.className('Js-next'))), 5000)
     //   await driver.wait(until.elementIsEnabled(driver.findElement(By.className('Js-next'))), 5000)
     //   const nextButton = await driver.findElement(By.className('Js-next'))
@@ -106,7 +107,7 @@ async function getLiveProjections() {
     //   await new Promise((r) => setTimeout(r, 500))
     // }
 
-    console.log('extracting scores')
+    Logger.info('extracting scores')
     const weeklySection = await driver.findElement(By.id('matchupweek'))
     const leagueTable = await weeklySection.findElements(By.className('Table'))
     const leagueTableBody = await leagueTable[0].findElements(By.tagName('tbody'))
@@ -128,7 +129,7 @@ async function getLiveProjections() {
     )
     return scores
   } catch (e) {
-    console.error('failed to extract scores', e)
+    Logger.error('failed to extract scores', e)
     return []
   }
 }
@@ -143,19 +144,19 @@ let lock = false
 let globalScores = []
 app.get('/live-projections', async (req, res) => {
   if (lock) {
-    console.log('another user is already checking scores, just give the latest')
+    Logger.info('another user is already checking scores, just give the latest')
     return res.send(globalScores)
   }
-  console.log('requesting live projections')
+  Logger.info('requesting live projections')
   lock = true
 
   try {
     const results = await getLiveProjections()
-    console.log('got new scores')
+    Logger.info('got new scores')
     globalScores = results
     res.send(globalScores)
   } catch (error) {
-    console.error('failed to get live projections', error)
+    Logger.error('failed to get live projections', error)
     res.status(500).send('Failed to get live projections')
   }
 
@@ -166,12 +167,12 @@ app.get('/', async (req, res) => {
   try {
     res.send('Server is healthy')
   } catch (e) {
-    console.error('Failed pulse: ', e)
+    Logger.error('Failed pulse: ', e)
     res.status(500).send('Server is unhealthy!')
   }
 })
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`)
+  Logger.info(`Server is running on port ${port}`)
 })
