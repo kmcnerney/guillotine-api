@@ -71,6 +71,7 @@ const TABLE_CELL_INDICES = {
 
 async function getLiveProjections() {
   try {
+    console.log('refreshing page')
     await driver.navigate().refresh()
     await new Promise((r) => setTimeout(r, 1000))
     await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
@@ -90,6 +91,7 @@ async function getLiveProjections() {
     //   await new Promise((r) => setTimeout(r, 500))
     // }
 
+    console.log('extracting scores')
     const weeklySection = await driver.findElement(By.id('matchupweek'))
     const leagueTable = await weeklySection.findElements(By.className('Table'))
     const leagueTableBody = await leagueTable[0].findElements(By.tagName('tbody'))
@@ -125,16 +127,16 @@ app.use(cors())
 let lock = false
 let globalScores = []
 app.get('/live-projections', async (req, res) => {
-  console.log('requesting live projections')
   if (lock) {
     console.log('another user is already checking scores, just give the latest')
     return res.send(globalScores)
   }
+  console.log('requesting live projections')
   lock = true
 
   try {
     const results = await getLiveProjections()
-    console.log('got new scores', results)
+    console.log('got new scores')
     globalScores = results
     res.send(globalScores)
   } catch (error) {
