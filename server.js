@@ -74,8 +74,6 @@ async function getLiveProjections() {
     console.log('refreshing page')
     await driver.navigate().refresh()
     console.log('refreshed')
-    await new Promise((r) => setTimeout(r, 1000))
-    console.log('making sure the page is ready')
     await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
   } catch (e) {
     console.error('failed to find league page, need to re-login')
