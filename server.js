@@ -23,6 +23,7 @@ async function startBrowser() {
   }
   console.log('creating new browser')
   driver = new Builder().forBrowser(Browser.CHROME).setChromeOptions(chromeOptions).build()
+  await driver.manage().timeouts().pageLoadTimeout(5000)
 }
 
 /**
