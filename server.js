@@ -34,7 +34,7 @@ async function login() {
 
   try {
     console.log('opening league page')
-    await driver.get('https://football.fantasysports.yahoo.com/f1/338574')
+    await driver.get('https://football.fantasysports.yahoo.com/f1/789266')
 
     console.log('entering username')
     await driver.wait(until.elementLocated(By.id('login-username')), 5000)
