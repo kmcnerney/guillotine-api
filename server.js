@@ -70,11 +70,25 @@ const TABLE_CELL_INDICES = {
   PROJECTION: 3,
 }
 
+async function refreshWithRetries(retries) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      console.log(`Attempt ${attempt} to refresh page`);
+      await driver.navigate().refresh();
+      console.log('refreshed')
+      return;
+    } catch (error) {
+      console.error(`Attempt ${attempt} failed: ${error}`);
+      if (attempt === retries) {
+        throw new Error('Failed to refresh page after multiple attempts');
+      }
+    }
+  }
+}
+
 async function getLiveProjections() {
   try {
-    console.log('refreshing page')
-    await driver.navigate().refresh()
-    console.log('refreshed')
+    await refreshWithRetries(3)
     await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
   } catch (e) {
     console.error('failed to find league page, need to re-login')
