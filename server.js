@@ -63,6 +63,7 @@ async function login() {
 }
 
 const TABLE_CELL_INDICES = {
+  RANK: 0,
   TEAM: 2,
   CURRENT: 4,
   PROJECTION: 3,
@@ -98,12 +99,11 @@ async function getLiveProjections() {
     for (const team of teams) {
       const cells = await team.findElements(By.tagName('td'))
       const teamCell = await cells[TABLE_CELL_INDICES.TEAM].findElements(By.tagName('a'))
-      const placeCell = await cells[TABLE_CELL_INDICES.TEAM].findElements(By.className('Mstart-med'))
       scores.push({
         teamName: await teamCell[0].getAttribute('innerHTML'),
         projectedPts: parseFloat(await cells[TABLE_CELL_INDICES.PROJECTION].getAttribute('innerHTML')),
         currentPts: parseFloat(await cells[TABLE_CELL_INDICES.CURRENT].getAttribute('innerHTML')),
-        overallRank: parseInt(await placeCell[0].getAttribute('innerHTML')),
+        overallRank: parseInt(await cells[TABLE_CELL_INDICES.RANK].getAttribute('innerHTML')),
       })
     }
     scores.sort(
