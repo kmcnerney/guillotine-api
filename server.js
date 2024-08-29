@@ -152,8 +152,11 @@ app.get('/live-projections', async (req, res) => {
 
   try {
     const results = await getLiveProjections()
-    Logger.info('got new scores')
-    globalScores = results
+    if (results && results.length) {
+      Logger.info('got new scores')
+      globalScores = results
+    }
+
     res.send(globalScores)
   } catch (error) {
     Logger.error('failed to get live projections', error)
