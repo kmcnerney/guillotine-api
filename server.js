@@ -60,7 +60,8 @@ async function login() {
     await driver.wait(until.elementLocated(By.id('matchupweek')), MFA_DELAY)
     Logger.info('Logged into Yahoo')
   } catch (e) {
-    Logger.error('Failed to login to Yahoo', e)
+    Logger.error('failed to login to yahoo', e)
+    throw new Error('failed to login to yahoo')
   }
 }
 
@@ -74,14 +75,14 @@ const TABLE_CELL_INDICES = {
 async function refreshWithRetries(retries) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      Logger.info(`Attempt ${attempt} to refresh page`);
-      await driver.navigate().refresh();
+      Logger.info(`Attempt ${attempt} to refresh page`)
+      await driver.navigate().refresh()
       Logger.info('refreshed')
-      return;
+      return
     } catch (error) {
-      Logger.error(`Attempt ${attempt} failed: ${error}`);
+      Logger.error(`Attempt ${attempt} failed: ${error}`)
       if (attempt === retries) {
-        throw new Error('Failed to refresh page after multiple attempts');
+        throw new Error('Failed to refresh page after multiple attempts')
       }
     }
   }
@@ -130,7 +131,7 @@ async function getLiveProjections() {
     return scores
   } catch (e) {
     Logger.error('failed to extract scores', e)
-    return []
+    throw new Error('failed to extract scores')
   }
 }
 
@@ -152,11 +153,8 @@ app.get('/live-projections', async (req, res) => {
 
   try {
     const results = await getLiveProjections()
-    if (results && results.length) {
-      Logger.info('got new scores')
-      globalScores = results
-    }
-
+    Logger.info('got new scores')
+    globalScores = results
     res.send(globalScores)
   } catch (error) {
     Logger.error('failed to get live projections', error)
