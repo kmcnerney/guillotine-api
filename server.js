@@ -10,7 +10,7 @@ chromeOptions.addArguments('--headless')
 chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--disable-dev-shm-usage')
 
-const MFA_DELAY = 10 * 1000 // 10 seconds
+const MFA_DELAY = 30 * 1000 // 30 seconds
 
 let driver
 async function startBrowser() {
@@ -24,7 +24,7 @@ async function startBrowser() {
   }
   Logger.info('creating new browser')
   driver = new Builder().forBrowser(Browser.CHROME).setChromeOptions(chromeOptions).build()
-  await driver.manage().setTimeouts({pageLoad: 10000})
+  await driver.manage().setTimeouts({pageLoad: 30000})
 }
 
 /**
@@ -32,8 +32,6 @@ async function startBrowser() {
  * @returns {Promise<void>} A promise that resolves once the login process is complete.
  */
 async function login() {
-  await startBrowser();
-
   try {
     Logger.info('opening league page')
     await driver.get('https://football.fantasysports.yahoo.com/f1/789266')
@@ -60,8 +58,9 @@ async function login() {
     await driver.wait(until.elementLocated(By.id('matchupweek')), MFA_DELAY)
     Logger.info('Logged into Yahoo')
   } catch (e) {
-    Logger.error('failed to login to yahoo', e)
-    throw new Error('failed to login to yahoo')
+    Logger.error('failed to login to yahoo, trying again', e)
+    await driver.navigate().refresh()
+    login()
   }
 }
 
@@ -118,17 +117,17 @@ async function getLiveProjections() {
     for (const team of teams) {
       const cells = await team.findElements(By.tagName('td'))
       const teamCell = await cells[TABLE_CELL_INDICES.TEAM].findElements(By.tagName('a'))
-      const {
+      const [
         teamName,
         projectedPts,
         currentPts,
         overallRank,
-      } = await Promise.all([
+      ] = await Promise.all([
         teamCell[0].getAttribute('innerHTML'),
         cells[TABLE_CELL_INDICES.PROJECTION].getAttribute('innerHTML'),
         cells[TABLE_CELL_INDICES.CURRENT].getAttribute('innerHTML'),
         cells[TABLE_CELL_INDICES.RANK].getAttribute('innerHTML'),
-      ]);
+      ])
       scores.push({
         teamName,
         projectedPts: parseFloat(projectedPts),
@@ -146,6 +145,7 @@ async function getLiveProjections() {
   }
 }
 
+await startBrowser();
 login()
 
 const app = express()
