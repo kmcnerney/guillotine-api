@@ -118,11 +118,22 @@ async function getLiveProjections() {
     for (const team of teams) {
       const cells = await team.findElements(By.tagName('td'))
       const teamCell = await cells[TABLE_CELL_INDICES.TEAM].findElements(By.tagName('a'))
+      const {
+        teamName,
+        projectedPts,
+        currentPts,
+        overallRank,
+      } = await Promise.all([
+        teamCell[0].getAttribute('innerHTML'),
+        cells[TABLE_CELL_INDICES.PROJECTION].getAttribute('innerHTML'),
+        cells[TABLE_CELL_INDICES.CURRENT].getAttribute('innerHTML'),
+        cells[TABLE_CELL_INDICES.RANK].getAttribute('innerHTML'),
+      ]);
       scores.push({
-        teamName: await teamCell[0].getAttribute('innerHTML'),
-        projectedPts: parseFloat(await cells[TABLE_CELL_INDICES.PROJECTION].getAttribute('innerHTML')),
-        currentPts: parseFloat(await cells[TABLE_CELL_INDICES.CURRENT].getAttribute('innerHTML')),
-        overallRank: parseInt(await cells[TABLE_CELL_INDICES.RANK].getAttribute('innerHTML')),
+        teamName,
+        projectedPts: parseFloat(projectedPts),
+        currentPts: parseFloat(currentPts),
+        overallRank: parseInt(overallRank),
       })
     }
     scores.sort(
