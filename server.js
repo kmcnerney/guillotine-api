@@ -90,7 +90,7 @@ async function refreshWithRetries(retries) {
 
 async function getLiveProjections() {
   try {
-    await refreshWithRetries(3)
+    await refreshWithRetries(2)
     await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
   } catch (e) {
     Logger.error('failed to find league page, need to re-login')
