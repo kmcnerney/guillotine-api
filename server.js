@@ -10,8 +10,6 @@ chromeOptions.addArguments('--headless')
 chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--disable-dev-shm-usage')
 
-const MFA_DELAY = 30 * 1000 // 30 seconds
-
 let driver
 async function startBrowser() {
   if (driver) {
@@ -24,7 +22,7 @@ async function startBrowser() {
   }
   Logger.info('creating new browser')
   driver = new Builder().forBrowser(Browser.CHROME).setChromeOptions(chromeOptions).build()
-  await driver.manage().setTimeouts({pageLoad: 30000})
+  await driver.manage().setTimeouts({pageLoad: 10000})
 }
 
 /**
@@ -55,12 +53,13 @@ async function login() {
     }
 
     Logger.info('waiting for mfa')
-    await driver.wait(until.elementLocated(By.id('matchupweek')), MFA_DELAY)
+    await driver.wait(until.elementLocated(By.id('matchupweek')), 10000)
     Logger.info('Logged into Yahoo')
   } catch (e) {
-    Logger.error('failed to login to yahoo, trying again', e)
+    Logger.error('failed to login to yahoo', e)
     await driver.navigate().refresh()
-    login()
+    await driver.wait(until.elementLocated(By.id('matchupweek')), 5000)
+    Logger.info('a single refresh fixed the problem')
   }
 }
 
