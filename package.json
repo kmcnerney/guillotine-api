@@ -10,10 +10,10 @@
   "license": "ISC",
   "type":"module",
   "dependencies": {
-    "chromedriver": "127.0.1",
+    "chromedriver": "130.0.0",
     "cors": "2.8.5",
     "express": "4.19.2",
-    "selenium-webdriver": "4.23.0",
+    "selenium-webdriver": "4.25.0",
     "winston": "^3.13.1"
   },
   "devDependencies": {
