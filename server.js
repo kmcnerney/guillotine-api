@@ -6,7 +6,7 @@ import { Builder, Browser, By, until } from 'selenium-webdriver'
 import chrome from 'selenium-webdriver/chrome.js'
 
 const chromeOptions = new chrome.Options()
-chromeOptions.addArguments('--headless')
+//chromeOptions.addArguments('--headless')
 chromeOptions.addArguments('--no-sandbox')
 chromeOptions.addArguments('--disable-dev-shm-usage')
 
@@ -32,20 +32,28 @@ async function startBrowser() {
 async function login() {
   try {
     Logger.info('opening league page')
-    await driver.get('https://football.fantasysports.yahoo.com/f1/789266')
+    await driver.get('https://football.fantasysports.yahoo.com/f1/760720')
 
     Logger.info('entering username')
     await driver.wait(until.elementLocated(By.id('login-username')), 5000)
     await driver.findElement(By.id('login-username')).sendKeys('mcnerney_kevin')
     await driver.findElement(By.id('login-signin')).click()
 
+    await new Promise((r) => setTimeout(r, 1000))
+    let pageSource = await driver.getPageSource()
+    if (pageSource.includes('Try signing in another')) {
+      Logger.info('Found "Try signing in another way" button. Clicking it.')
+      await driver.findElement(By.xpath("//button[contains(text(), 'Try signing in another')]")).click()
+    }
+
     Logger.info('entering password')
     await driver.wait(until.elementLocated(By.id('login-passwd')), 5000)
     await driver.findElement(By.id('login-passwd')).sendKeys('GuillotineEasy1!')
+    Logger.info('clicking signin')
     await driver.findElement(By.id('login-signin')).click()
 
     await new Promise((r) => setTimeout(r, 1000))
-    const pageSource = await driver.getPageSource()
+    pageSource = await driver.getPageSource()
     if (pageSource.includes('Stay&nbsp;verified')) {
       Logger.info('Yahoo is asking to stay verified. Clicking Yes')
       const stayVerifiedButton = await driver.findElement(By.className('puree-button-primary'))
